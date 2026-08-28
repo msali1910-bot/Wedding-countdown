@@ -69,6 +69,21 @@
     opacity:0.9;
   }
 
+  .names{
+    font-family:'Aref Ruqaa', serif;
+    font-weight:700;
+    font-size: clamp(20px, 4.5vw, 28px);
+    color: var(--blush);
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  .names .amp{
+    color: var(--gold);
+    margin: 0 8px;
+    font-family:'Tajawal', sans-serif;
+    font-weight:300;
+  }
+
   .title{
     font-family:'Aref Ruqaa', serif;
     font-weight:700;
@@ -215,6 +230,7 @@
 <div class="page">
 
   <div class="eyebrow">عهدٌ بيننا</div>
+  <div class="names">محمد <span class="amp">&amp;</span> مريم</div>
   <div class="title">ليلة العمر تقترب<br>خطوة خطوة</div>
 
   <div class="halo-wrap">
@@ -248,14 +264,14 @@
   <div class="quote" id="quoteText">كل يوم يمر خطوة نحو بيتنا الصغير</div>
 
   <div class="dates-row">
-    <div class="chip">من <b>٢٨ أغسطس ٢٠٢٦</b></div>
+    <div class="chip">من <b>١٧ يوليو ٢٠٢٦</b></div>
     <div class="chip">إلى <b>٢٧ يوليو ٢٠٢٩</b></div>
   </div>
 
 </div>
 
 <script>
-  const start = new Date('2026-08-28T00:00:00');
+  const start = new Date('2026-07-17T00:00:00');
   const end   = new Date('2029-07-27T00:00:00');
 
   const quotes = [
