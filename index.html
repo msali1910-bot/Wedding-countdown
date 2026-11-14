@@ -450,7 +450,13 @@
   import {getDatabase, ref, push, onValue, remove} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   import {getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  const cfg = {apiKey:"PASTE", authDomain:"PASTE", databaseURL:"PASTE", projectId:"PASTE", appId:"PASTE"};
+  const cfg = {
+    apiKey:"AIzaSyB4PfUxiKX_q5MXo8i9R8RbeSc7Gald7P8",
+    authDomain:"weeding-counter.firebaseapp.com",
+    databaseURL:"https://weeding-counter-default-rtdb.firebaseio.com",
+    projectId:"weeding-counter",
+    appId:"1:526950014691:web:d7012b279eb156a1e9afd6"
+  };
   const $ = id => document.getElementById(id);
   const ar = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
   const names = {m:'محمد', r:'مريم'};
