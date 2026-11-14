@@ -220,12 +220,11 @@
     text-shadow: 0 0 26px rgba(212,175,122,0.5);
   }
 
-  :root[data-theme="dawn"]{--bg-deep:#3b1f2c;--bg-mid:#5e3445;--bg-mid2:#86505f;--gold:#f0c9a0;--gold-bright:#ffe6c7;--blush:#f7c6cf;}
-  :root[data-theme="night"]{--bg-deep:#0a1226;--bg-mid:#14284a;--bg-mid2:#22406b;--gold:#d9c28a;--gold-bright:#f3e6bd;--blush:#aebfe8;}
   .stars i{position:fixed;width:2px;height:2px;border-radius:50%;background:var(--gold-bright);animation:tw 4s ease-in-out infinite;pointer-events:none}
   @keyframes tw{0%,100%{opacity:.1}50%{opacity:.9}}
   .bank{width:min(420px,100%);margin:6px 0 26px}
   .bank h2{font-family:'Aref Ruqaa',serif;color:var(--gold-bright);font-size:22px;margin-bottom:12px}
+  .bsub{color:var(--ink-soft);font-size:13px;margin:-6px 0 14px}
   .accts{display:flex;gap:12px}
   .acct{flex:1;border:1px solid rgba(212,175,122,.4);border-radius:16px;padding:14px 8px;background:rgba(212,175,122,.06)}
   .acct .nm{color:var(--blush);font-weight:700}
@@ -283,7 +282,8 @@
   <div class="quote" id="quoteText">كل يوم يمر خطوة نحو بيتنا الصغير</div>
 
   <section class="bank">
-    <h2>بنك البوسات 💋</h2>
+    <h2>بنك البوسات المتحوّشة 🐷</h2>
+    <p class="bsub">بنحوّش لحد ما نصفّي حساباتنا بعد الجواز</p>
     <div class="accts">
       <div class="acct"><div class="nm">محمد</div><small>بوسات من مريم</small><div class="bal" id="balm">٠</div><div class="btns"><button onclick="act('m',1)">＋</button><button onclick="act('m',-1)">−</button></div></div>
       <div class="acct"><div class="nm">مريم</div><small>بوسات من محمد</small><div class="bal" id="balr">٠</div><div class="btns"><button onclick="act('r',1)">＋</button><button onclick="act('r',-1)">−</button></div></div>
@@ -298,8 +298,6 @@
     <div class="chip">إلى <b>٢٧ يوليو ٢٠٢٩</b></div>
   </div>
   <div class="tools">
-    <button id="themeBtn">🎨 الشكل</button>
-    <span id="tzBtns"></span>
     <button id="loginBtn" onclick="login()">🔒 دخول محمد</button>
     <i id="stars" class="stars"></i>
   </div>
@@ -308,11 +306,7 @@
 
 <script>
   const start = new Date('2026-07-17T00:00:00');
-  const MODES = {auto:'', summer:'+03:00', winter:'+02:00'};
-  const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
-  let mode = store.get('dst') || 'auto';
-  const mkEnd = () => new Date('2029-07-27T20:00:00' + (MODES[mode] || ''));
-  let end = mkEnd();
+  const end = new Date('2029-07-27T00:00:00');
 
   const quotes = [
     "كل يوم يمر خطوة نحو بيتنا الصغير",
@@ -413,24 +407,6 @@
     quoteText.textContent = MS[days] || quotes[((dayIndex % quotes.length) + quotes.length) % quotes.length];
   }
 
-  // themes
-  const themes = ['wine','dawn','night'];
-  let th = store.get('th') || 'wine';
-  const setTh = () => { document.documentElement.dataset.theme = th; };
-  setTh();
-  document.getElementById('themeBtn').onclick = () => { th = themes[(themes.indexOf(th)+1) % themes.length]; store.set('th', th); setTh(); };
-
-  // summer / winter time
-  const tz = document.getElementById('tzBtns');
-  [['auto','تلقائي'],['summer','صيفي'],['winter','شتوي']].forEach(([k,l]) => {
-    const b = document.createElement('button');
-    b.textContent = l; b.dataset.k = k;
-    b.onclick = () => { mode = k; store.set('dst', k); end = mkEnd(); paint(); update(); };
-    tz.appendChild(b);
-  });
-  function paint(){ tz.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.k === mode)); }
-  paint();
-
   // twinkling stars
   const st = document.getElementById('stars');
   for (let i = 0; i < 26; i++) {
@@ -460,8 +436,9 @@
   const $ = id => document.getElementById(id);
   const ar = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
   const names = {m:'محمد', r:'مريم'};
+  const dt = t => new Date(t).toLocaleDateString('ar-EG',{day:'numeric',month:'long'});
   const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const valid = v => v && (v.who === 'm' || v.who === 'r') && (v.d === 1 || v.d === -1) && typeof v.reason === 'string';
+  const valid = v => v && (v.who === 'm' || v.who === 'r') && (v.d === 1 || v.d === -1);
 
   if (cfg.apiKey === "PASTE") {
     $('bankNote').textContent = 'بنك البوسات قيد الإعداد';
@@ -477,10 +454,10 @@
       L.forEach(v => bal[v.who] += v.d);
       $('balm').textContent = ar(bal.m);
       $('balr').textContent = ar(bal.r);
-      $('logList').innerHTML = L.slice(0,8).map(v => `<li>${v.d > 0 ? '＋' : '−'} ${names[v.who]} — ${esc(v.reason.slice(0,80))}</li>`).join('');
+      $('logList').innerHTML = L.slice(0,8).map(v => `<li>${v.d > 0 ? '＋' : '−'} ${names[v.who]} · ${dt(v.t)}</li>`).join('');
       const S = Object.entries(sug).filter(([id,v]) => /^[-\w]+$/.test(id) && valid(v));
       $('sugBox').innerHTML = S.length ? '<div class="sug">اقتراحات تنتظر موافقة محمد:' + S.map(([id,v]) =>
-        `<div>${v.d > 0 ? '＋' : '−'} ${names[v.who]} — ${esc(v.reason.slice(0,80))} ` +
+        `<div>${v.d > 0 ? '＋' : '−'} ${names[v.who]} · ${dt(v.t)} ` +
         (admin ? `<button onclick="appr('${id}')">✔</button> <button onclick="rej('${id}')">✖</button>` : '') + '</div>').join('') + '</div>' : '';
       $('bankNote').textContent = admin ? '' : 'أي ضغطة هتتبعت كاقتراح لمحمد يوافق عليه';
       $('loginBtn').textContent = admin ? '🔓 خروج' : '🔒 دخول محمد';
@@ -491,9 +468,7 @@
     onAuthStateChanged(auth, u => { admin = !!u; render(); });
 
     window.act = async (who, d) => {
-      const reason = prompt(d > 0 ? 'بوسة عن إيه؟' : 'الخصم بسبب إيه؟');
-      if (!reason) return;
-      try { await push(ref(db, admin ? 'log' : 'sug'), {who, d, reason: reason.slice(0,80), t: Date.now()}); }
+      try { await push(ref(db, admin ? 'log' : 'sug'), {who, d, t: Date.now()}); }
       catch (e) { alert('تعذّر الحفظ'); }
     };
     window.appr = async id => {
