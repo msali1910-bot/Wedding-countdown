@@ -220,8 +220,27 @@
     text-shadow: 0 0 26px rgba(212,175,122,0.5);
   }
 
+  :root[data-theme="dawn"]{--bg-deep:#3b1f2c;--bg-mid:#5e3445;--bg-mid2:#86505f;--gold:#f0c9a0;--gold-bright:#ffe6c7;--blush:#f7c6cf;}
+  :root[data-theme="night"]{--bg-deep:#0a1226;--bg-mid:#14284a;--bg-mid2:#22406b;--gold:#d9c28a;--gold-bright:#f3e6bd;--blush:#aebfe8;}
+  .stars i{position:fixed;width:2px;height:2px;border-radius:50%;background:var(--gold-bright);animation:tw 4s ease-in-out infinite;pointer-events:none}
+  @keyframes tw{0%,100%{opacity:.1}50%{opacity:.9}}
+  .bank{width:min(420px,100%);margin:6px 0 26px}
+  .bank h2{font-family:'Aref Ruqaa',serif;color:var(--gold-bright);font-size:22px;margin-bottom:12px}
+  .accts{display:flex;gap:12px}
+  .acct{flex:1;border:1px solid rgba(212,175,122,.4);border-radius:16px;padding:14px 8px;background:rgba(212,175,122,.06)}
+  .acct .nm{color:var(--blush);font-weight:700}
+  .acct small{display:block;color:var(--ink-soft);font-size:11px;margin-top:2px}
+  .acct .bal{font-size:34px;font-weight:900;margin:6px 0}
+  .acct .btns{display:flex;gap:6px;justify-content:center}
+  .bank button,.tools button{font:inherit;cursor:pointer;color:var(--ink-light);background:rgba(212,175,122,.14);border:1px solid rgba(212,175,122,.45);border-radius:999px;padding:6px 12px;font-size:13px}
+  .tools button.on{background:var(--gold);color:var(--bg-deep)}
+  .logl{list-style:none;margin-top:14px;text-align:right;font-size:13px;color:var(--ink-soft)}
+  .logl li{padding:6px 0;border-bottom:1px dashed rgba(212,175,122,.2)}
+  .sug{margin-top:12px;font-size:13px;color:var(--blush);text-align:right}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+
   @media (prefers-reduced-motion: reduce){
-    .page, .halo-wrap{ animation:none; }
+    .page, .halo-wrap, .stars i{ animation:none; }
   }
 </style>
 </head>
@@ -263,16 +282,37 @@
 
   <div class="quote" id="quoteText">كل يوم يمر خطوة نحو بيتنا الصغير</div>
 
+  <section class="bank">
+    <h2>بنك البوسات 💋</h2>
+    <div class="accts">
+      <div class="acct"><div class="nm">محمد</div><small>بوسات من مريم</small><div class="bal" id="balm">٠</div><div class="btns"><button onclick="act('m',1)">＋</button><button onclick="act('m',-1)">−</button></div></div>
+      <div class="acct"><div class="nm">مريم</div><small>بوسات من محمد</small><div class="bal" id="balr">٠</div><div class="btns"><button onclick="act('r',1)">＋</button><button onclick="act('r',-1)">−</button></div></div>
+    </div>
+    <div id="sugBox"></div>
+    <ul class="logl" id="logList"></ul>
+    <div class="sug" id="bankNote"></div>
+  </section>
+
   <div class="dates-row">
     <div class="chip">من <b>١٧ يوليو ٢٠٢٦</b></div>
     <div class="chip">إلى <b>٢٧ يوليو ٢٠٢٩</b></div>
+  </div>
+  <div class="tools">
+    <button id="themeBtn">🎨 الشكل</button>
+    <span id="tzBtns"></span>
+    <button id="loginBtn" onclick="login()">🔒 دخول محمد</button>
+    <i id="stars" class="stars"></i>
   </div>
 
 </div>
 
 <script>
   const start = new Date('2026-07-17T00:00:00');
-  const end   = new Date('2029-07-27T00:00:00');
+  const MODES = {auto:'', summer:'+03:00', winter:'+02:00'};
+  const store = {get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+  let mode = store.get('dst') || 'auto';
+  const mkEnd = () => new Date('2029-07-27T20:00:00' + (MODES[mode] || ''));
+  let end = mkEnd();
 
   const quotes = [
     "كل يوم يمر خطوة نحو بيتنا الصغير",
@@ -281,7 +321,43 @@
     "بيننا الآن أيام، وغدًا تصير ذكرى نرويها",
     "الشوق اليوم، وعدٌ بفرحةٍ في الغد",
     "كل غروبٍ يقرّبنا من ليلة العمر",
-    "الصبر مفتاحٌ، وفرحتنا قادمة لا محالة"
+    "الصبر مفتاحٌ، وفرحتنا قادمة لا محالة",
+    "بيتنا يكبر في القلب قبل أن يُبنى",
+    "نعدّ الأيام لأننا نحبّ الوصول",
+    "أيامنا تُحسب، وحبّنا لا يُحسب",
+    "كل يوم حجرٌ جديد في بيت الحلم",
+    "مهما طال الطريق، وجهته واحدة",
+    "نكتب الآن مقدّمة حكايتنا الجميلة",
+    "قلبان يتدرّبان على الانتظار الجميل",
+    "كل رسالة بيننا لبنةٌ في طريق الزفاف",
+    "يومٌ آخر، والفرح أقرب",
+    "ننتظر الفرح كما ينتظر البحر القمر",
+    "في الحكاية فصولٌ جميلة لم تُكتب بعد",
+    "هدوء الانتظار يسبق ضجيج الفرحة",
+    "كل يوم نختار بعضنا من جديد",
+    "نعبر الأيام يدًا بيد",
+    "كل عدٍّ تنازلي يبدأ بوعد، وبدأنا بوعدنا",
+    "نحوّل الشوق إلى خطط، والخطط إلى بيت",
+    "كل ضحكة اليوم رصيدٌ لحياتنا القادمة",
+    "نتعلّم معًا كيف نكون بيتًا",
+    "الغد أقرب مما نظن",
+    "هذه اللحظة ستُحكى لأولادنا يومًا",
+    "الأيام جسرٌ، والفرحة في آخره",
+    "كلما مرّ يوم، كبر الشوق وكبرت الفرحة",
+    "نحن نحبّ بصبر، ونحلم بثقة",
+    "ما أجمل أن يكون الغد موعدًا",
+    "لكل انتظارٍ نهاية، ونهايتنا فرح",
+    "سنضحك يومًا على هذا العدّ التنازلي",
+    "أجمل الأشياء تأتي لمن يحسن الانتظار",
+    "اليوم أحبّ من الأمس بقليل",
+    "كل خطوةٍ صغيرة تقرّبنا من الحلم الكبير",
+    "الحب عادةٌ جميلة نكررها كل يوم",
+    "نصنع الآن ذكريات ستؤثّث بيتنا",
+    "بين الشوق والصبر مسافةٌ اسمها الأمل",
+    "مهما شغلتنا الأيام، نلتقي عند الفرح",
+    "كل يوم يمرّ يُنقص العدّ ويزيد الحنين",
+    "نحن نبني حياة، لا حفلة فقط",
+    "ثقتنا ببعضنا أجمل ما نملك اليوم"
   ];
 
   const daysBig = document.getElementById('daysBig');
@@ -333,11 +409,99 @@
     secondsVal.textContent = toArabicNumber(pad(seconds));
 
     const dayIndex = Math.floor((now - start) / 86400000);
-    quoteText.textContent = quotes[((dayIndex % quotes.length) + quotes.length) % quotes.length];
+    const MS = {500:'٥٠٠ يوم بس.. والحكاية بتحلو',365:'سنة واحدة تفصلنا عن الفرح',100:'مئة يوم على ليلة العمر',30:'شهر واحد.. العدّ بدأ يضيق',7:'أسبوع واحد! جهّزوا القلوب',1:'بكرة ليلة العمر'};
+    quoteText.textContent = MS[days] || quotes[((dayIndex % quotes.length) + quotes.length) % quotes.length];
+  }
+
+  // themes
+  const themes = ['wine','dawn','night'];
+  let th = store.get('th') || 'wine';
+  const setTh = () => { document.documentElement.dataset.theme = th; };
+  setTh();
+  document.getElementById('themeBtn').onclick = () => { th = themes[(themes.indexOf(th)+1) % themes.length]; store.set('th', th); setTh(); };
+
+  // summer / winter time
+  const tz = document.getElementById('tzBtns');
+  [['auto','تلقائي'],['summer','صيفي'],['winter','شتوي']].forEach(([k,l]) => {
+    const b = document.createElement('button');
+    b.textContent = l; b.dataset.k = k;
+    b.onclick = () => { mode = k; store.set('dst', k); end = mkEnd(); paint(); update(); };
+    tz.appendChild(b);
+  });
+  function paint(){ tz.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.k === mode)); }
+  paint();
+
+  // twinkling stars
+  const st = document.getElementById('stars');
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('i');
+    s.style.top = (Math.random()*100) + 'vh';
+    s.style.left = (Math.random()*100) + 'vw';
+    s.style.animationDelay = (Math.random()*4) + 's';
+    st.appendChild(s);
   }
 
   update();
   setInterval(update, 1000);
+</script>
+
+<script type="module">
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {getDatabase, ref, push, onValue, remove} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import {getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const cfg = {apiKey:"PASTE", authDomain:"PASTE", databaseURL:"PASTE", projectId:"PASTE", appId:"PASTE"};
+  const $ = id => document.getElementById(id);
+  const ar = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+  const names = {m:'محمد', r:'مريم'};
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const valid = v => v && (v.who === 'm' || v.who === 'r') && (v.d === 1 || v.d === -1) && typeof v.reason === 'string';
+
+  if (cfg.apiKey === "PASTE") {
+    $('bankNote').textContent = 'بنك البوسات قيد الإعداد';
+    $('loginBtn').style.display = 'none';
+    window.act = () => alert('بنك البوسات لسه قيد الإعداد');
+  } else {
+    const app = initializeApp(cfg), db = getDatabase(app), auth = getAuth(app);
+    let admin = false, log = {}, sug = {};
+
+    function render() {
+      const bal = {m:0, r:0};
+      const L = Object.values(log).filter(valid).sort((a,b) => b.t - a.t);
+      L.forEach(v => bal[v.who] += v.d);
+      $('balm').textContent = ar(bal.m);
+      $('balr').textContent = ar(bal.r);
+      $('logList').innerHTML = L.slice(0,8).map(v => `<li>${v.d > 0 ? '＋' : '−'} ${names[v.who]} — ${esc(v.reason.slice(0,80))}</li>`).join('');
+      const S = Object.entries(sug).filter(([id,v]) => /^[-\w]+$/.test(id) && valid(v));
+      $('sugBox').innerHTML = S.length ? '<div class="sug">اقتراحات تنتظر موافقة محمد:' + S.map(([id,v]) =>
+        `<div>${v.d > 0 ? '＋' : '−'} ${names[v.who]} — ${esc(v.reason.slice(0,80))} ` +
+        (admin ? `<button onclick="appr('${id}')">✔</button> <button onclick="rej('${id}')">✖</button>` : '') + '</div>').join('') + '</div>' : '';
+      $('bankNote').textContent = admin ? '' : 'أي ضغطة هتتبعت كاقتراح لمحمد يوافق عليه';
+      $('loginBtn').textContent = admin ? '🔓 خروج' : '🔒 دخول محمد';
+    }
+
+    onValue(ref(db, 'log'), s => { log = s.val() || {}; render(); });
+    onValue(ref(db, 'sug'), s => { sug = s.val() || {}; render(); });
+    onAuthStateChanged(auth, u => { admin = !!u; render(); });
+
+    window.act = async (who, d) => {
+      const reason = prompt(d > 0 ? 'بوسة عن إيه؟' : 'الخصم بسبب إيه؟');
+      if (!reason) return;
+      try { await push(ref(db, admin ? 'log' : 'sug'), {who, d, reason: reason.slice(0,80), t: Date.now()}); }
+      catch (e) { alert('تعذّر الحفظ'); }
+    };
+    window.appr = async id => {
+      const it = sug[id]; if (!it) return;
+      try { await push(ref(db, 'log'), it); await remove(ref(db, 'sug/' + id)); } catch (e) { alert('تعذّر الحفظ'); }
+    };
+    window.rej = id => remove(ref(db, 'sug/' + id)).catch(() => alert('تعذّر الحذف'));
+    window.login = async () => {
+      if (admin) { signOut(auth); return; }
+      const em = prompt('الإيميل'); if (!em) return;
+      const pw = prompt('كلمة السر'); if (!pw) return;
+      try { await signInWithEmailAndPassword(auth, em, pw); } catch (e) { alert('بيانات غلط'); }
+    };
+  }
 </script>
 </body>
 </html>
